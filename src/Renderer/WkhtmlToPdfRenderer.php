@@ -3,51 +3,59 @@ declare(strict_types = 1);
 
 namespace Phauthentic\Presentation\Renderer;
 
+use InvalidArgumentException;
+use Phauthentic\Presentation\View\PdfViewInterface;
 use Phauthentic\Presentation\View\ViewInterface;
+use RuntimeException;
 
 /**
  * Twig Renderer
  */
-class WkhtmlToPdfRenderer implements RendererInterface
+class WkhtmlToPdfRenderer
 {
-    /**
-     * @inheritDoc
-     */
-    public function render(ViewInterface $render): string
-    {
-        $template = $this->twig->load($render->getTemplate());
+	/**
+	 * Binary
+	 *
+	 * @var string
+	 */
+	protected $binary = '/usr/bin/wkhtmltopdf';
 
-        return $template->render($render->getViewVars());
-    }
+	/**
+	 *
+	 */
+	protected $isWindowsEnvironment = false;
 
+	/**
+	 * Cwd for phps proc_open
+	 */
+	protected $cwd = null;
 
-    /**
-     * Path to the wkhtmltopdf executable binary
-     *
-     * @var string
-     */
-    protected $_binary = '/usr/bin/wkhtmltopdf';
+	public function setBinary(string $binary): self
+	{
+		if (!file_exists($binary)) {
+			throw new InvalidArgumentException('Binary %s does not exist');
+		}
 
-    /**
-     * Flag to indicate if the environment is windows
-     *
-     * @var bool
-     */
-    protected $_windowsEnvironment;
+		if (!is_executable($binary)) {
+			throw new RuntimeException('%s not a binary or can not be executed');
+		}
+
+		$this->binary = $binary;
+
+		return $this;
+	}
 
     /**
      * Constructor
-     *
-     * @param \CakePdf\Pdf\CakePdf $Pdf CakePdf instance
      */
-    public function __construct(CakePdf $Pdf)
+    public function __construct(array $options = [])
     {
-        parent::__construct($Pdf);
+        $this->options = $options;
+        $this->cwd = sys_get_temp_dir();
+        $this->isWindowsEnvironment = strtoupper(substr(PHP_OS, 0, 3)) === 'WIN';
 
-        $this->_windowsEnvironment = strtoupper(substr(PHP_OS, 0, 3)) === 'WIN';
-
-        if ($this->_windowsEnvironment) {
-            $this->_binary = 'C:/Progra~1/wkhtmltopdf/bin/wkhtmltopdf.exe';
+        if ($this->isWindowsEnvironment) {
+            $this->setBinary('C:/Progra~1/wkhtmltopdf/bin/wkhtmltopdf.exe');
         }
     }
 
@@ -58,10 +66,10 @@ class WkhtmlToPdfRenderer implements RendererInterface
      * @return string Raw PDF data
      * @throws \Exception If no output is generated to stdout by wkhtmltopdf.
      */
-    public function output()
+    public function render(PdfViewInterface $view)
     {
-        $command = $this->_getCommand();
-        $content = $this->exec($command, $this->_Pdf->html());
+        $command = $this->buildCommand($view);
+        $content = $this->exec($command, $view->getHtml());
 
         if (!empty($content['stdout'])) {
             return $content['stdout'];
@@ -90,9 +98,7 @@ class WkhtmlToPdfRenderer implements RendererInterface
     {
         $result = ['stdout' => '', 'stderr' => '', 'return' => ''];
 
-        $cwd = $this->getConfig('cwd');
-
-        $proc = proc_open($cmd, [0 => ['pipe', 'r'], 1 => ['pipe', 'w'], 2 => ['pipe', 'w']], $pipes, $cwd);
+        $proc = proc_open($cmd, [0 => ['pipe', 'r'], 1 => ['pipe', 'w'], 2 => ['pipe', 'w']], $pipes, $this->cwd);
         fwrite($pipes[0], $input);
         fclose($pipes[0]);
 
@@ -110,43 +116,34 @@ class WkhtmlToPdfRenderer implements RendererInterface
     /**
      * Get the command to render a pdf
      *
+     *
      * @return string the command for generating the pdf
-     * @throws \Cake\Core\Exception\Exception
      */
-    protected function _getCommand()
+    protected function buildCommand(PdfViewInterface $pdfView): string
     {
-        $binary = $this->getConfig('binary');
-
-        if ($binary) {
-            $this->_binary = $binary;
-        }
-        if (!is_executable($this->_binary)) {
-            throw new Exception(sprintf('wkhtmltopdf binary is not found or not executable: %s', $this->_binary));
-        }
-
         $options = [
             'quiet' => true,
             'print-media-type' => true,
-            'orientation' => $this->_Pdf->orientation(),
-            'page-size' => $this->_Pdf->pageSize(),
-            'encoding' => $this->_Pdf->encoding(),
-            'title' => $this->_Pdf->title(),
-            'javascript-delay' => $this->_Pdf->delay(),
-            'window-status' => $this->_Pdf->windowStatus(),
+            'orientation' => $pdfView->getOrientation(),
+            'page-size' => $pdfView->getPageSize(),
+            'encoding' => $pdfView->getEncoding(),
+            'title' => $pdfView->getTitle(),
+            'javascript-delay' => $pdfView->getJsDelay(),
+            'window-status' => $pdfView->getWindowStatus(),
         ];
 
-        $margin = $this->_Pdf->margin();
+        $margin = $pdfView->getMargin();
         foreach ($margin as $key => $value) {
             if ($value !== null) {
                 $options['margin-' . $key] = $value . 'mm';
             }
         }
-        $options = array_merge($options, (array)$this->getConfig('options'));
+        $options = array_merge($options, (array)$this->options);
 
-        if ($this->_windowsEnvironment) {
-            $command = '"' . $this->_binary . '"';
+        if ($this->isWindowsEnvironment) {
+            $command = '"' . $this->binary . '"';
         } else {
-            $command = $this->_binary;
+            $command = $this->binary;
         }
 
         foreach ($options as $key => $value) {
@@ -162,14 +159,14 @@ class WkhtmlToPdfRenderer implements RendererInterface
                 $command .= sprintf(' --%s %s', $key, escapeshellarg($value));
             }
         }
-        $footer = $this->_Pdf->footer();
+        $footer = $pdfView->footer();
         foreach ($footer as $location => $text) {
             if ($text !== null) {
                 $command .= " --footer-$location \"" . addslashes($text) . "\"";
             }
         }
 
-        $header = $this->_Pdf->header();
+        $header = $pdfView->header();
         foreach ($header as $location => $text) {
             if ($text !== null) {
                 $command .= " --header-$location \"" . addslashes($text) . "\"";
@@ -177,7 +174,7 @@ class WkhtmlToPdfRenderer implements RendererInterface
         }
         $command .= " - -";
 
-        if ($this->_windowsEnvironment) {
+        if ($this->isWindowsEnvironment) {
             $command = '"' . $command . '"';
         }
 

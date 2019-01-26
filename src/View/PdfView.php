@@ -6,7 +6,7 @@ namespace Phauthentic\Presentation\View;
 /**
  * Abstract Pdf
  */
-class AbstractPdf implements PdfViewInterface
+class PdfView extends View implements PdfViewInterface
 {
 
     /**
@@ -84,7 +84,7 @@ class AbstractPdf implements PdfViewInterface
      *
      * @var string
      */
-    protected $_html = null;
+    protected $_html = '';
 
     /**
      * Page size of the pdf
@@ -232,11 +232,6 @@ class AbstractPdf implements PdfViewInterface
      */
     public function __construct($config = [])
     {
-        $config = array_merge(
-            (array)Configure::read('CakePdf'),
-            $config
-        );
-
         if (!empty($config['engine'])) {
             $this->engine($config['engine']);
         }
@@ -313,15 +308,17 @@ class AbstractPdf implements PdfViewInterface
      * @param null|string $html Html to set
      * @return mixed
      */
-    public function html($html = null)
+    public function getHtml(): string
     {
-        if ($html === null) {
-            return $this->_html;
-        }
-        $this->_html = $html;
-
-        return $this;
+        return $this->_html;
     }
+
+	public function setHtml($html = null)
+	{
+		$this->_html = $html;
+
+		return $this;
+	}
 
     /**
      * Writes output to file
@@ -410,14 +407,21 @@ class AbstractPdf implements PdfViewInterface
      * @param null|string $pageSize Page size to set
      * @return mixed
      */
-    public function pageSize($pageSize = null)
+    public function setPageSize(?string $pageSize ): PdfViewInterface
     {
-        if ($pageSize === null) {
-            return $this->_pageSize;
-        }
         $this->_pageSize = $pageSize;
 
         return $this;
+    }
+
+    public function getPageSize(): ?string
+    {
+		return $this->_pageSize;
+    }
+
+    public function getOrientation()
+    {
+        return $this->_orientation;
     }
 
     /**
@@ -426,7 +430,7 @@ class AbstractPdf implements PdfViewInterface
      * @param null|string $orientation orientation to set
      * @return mixed
      */
-    public function orientation($orientation = null)
+    public function setOrientation(?string $orientation): PdfViewInterface
     {
         if ($orientation === null) {
             return $this->_orientation;
@@ -440,16 +444,18 @@ class AbstractPdf implements PdfViewInterface
      * Get/Set Encoding.
      *
      * @param null|string $encoding encoding to set
-     * @return mixed
+     * @return $this
      */
-    public function encoding($encoding = null)
+    public function setEncoding(?string $encoding): PdfViewInterface
     {
-        if ($encoding === null) {
-            return $this->_encoding;
-        }
         $this->_encoding = $encoding;
 
         return $this;
+    }
+
+    public function getEncoding(): ?string
+    {
+    	return $this->_encoding;
     }
 
     /**
@@ -498,6 +504,16 @@ class AbstractPdf implements PdfViewInterface
         return $this;
     }
 
+	public function getMargin(): array
+	{
+		return [
+			'bottom' => $this->_marginBottom,
+			'left' => $this->_marginLeft,
+			'right' => $this->_marginRight,
+			'top' => $this->_marginTop,
+		];
+	}
+
     /**
      * Get/Set page margins.
      *
@@ -527,17 +543,8 @@ class AbstractPdf implements PdfViewInterface
      * @param null|string $top top margin
      * @return mixed
      */
-    public function margin($bottom = null, $left = null, $right = null, $top = null)
+    public function setMargin($bottom = null, $left = null, $right = null, $top = null)
     {
-        if ($bottom === null) {
-            return [
-                'bottom' => $this->_marginBottom,
-                'left' => $this->_marginLeft,
-                'right' => $this->_marginRight,
-                'top' => $this->_marginTop,
-            ];
-        }
-
         if (is_array($bottom)) {
             extract($bottom, EXTR_IF_EXISTS);
         }
@@ -632,15 +639,20 @@ class AbstractPdf implements PdfViewInterface
      * @param null|string $title title to set
      * @return mixed
      */
-    public function title($title = null)
+    public function title(?string $title)
     {
-        if ($title === null) {
-            return $this->_title;
-        }
         $this->_title = $title;
 
         return $this;
     }
+
+	public function getTitle(): ?string {
+		return $this->_title;
+	}
+
+	public function getJsDelay() {
+    	return $this->delay();
+	}
 
     /**
      * Get/Set javascript delay.
@@ -665,15 +677,17 @@ class AbstractPdf implements PdfViewInterface
      * @param null|string $status status to set as string
      * @return mixed
      */
-    public function windowStatus($status = null)
+    public function setWindowStatus(?string $status): PdfViewInterface
     {
-        if ($status === null) {
-            return $this->_windowStatus;
-        }
         $this->_windowStatus = $status;
 
         return $this;
     }
+
+	public function getWindowStatus()
+	{
+		return $this->_windowStatus;
+	}
 
     /**
      * Get/Set protection.
@@ -906,22 +920,6 @@ class AbstractPdf implements PdfViewInterface
             return $this->_theme;
         }
         $this->_theme = $theme;
-
-        return $this;
-    }
-
-    /**
-     * Helpers to be used in render
-     *
-     * @param array $helpers helpers to use
-     * @return mixed
-     */
-    public function helpers($helpers = null)
-    {
-        if ($helpers === null) {
-            return $this->_helpers;
-        }
-        $this->_helpers = (array)$helpers;
 
         return $this;
     }

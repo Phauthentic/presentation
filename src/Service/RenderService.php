@@ -3,7 +3,9 @@ declare(strict_types = 1);
 
 namespace Phauthentic\Presentation\Service;
 
+use Phauthentic\Presentation\Renderer\NativePHPRenderer;
 use Phauthentic\Presentation\Renderer\RendererInterface;
+use Phauthentic\Presentation\Renderer\WkhtmlToPdfRenderer;
 use Phauthentic\Presentation\View\ViewInterface;
 use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ResponseInterface;
@@ -36,15 +38,15 @@ class RenderService implements RenderServiceInterface, ResponseRenderServiceInte
      */
     protected $mimeTypeMap = [
         // html
-        'text/html' => 'html',
-        'application/xhtml' => 'html',
-        'application/xhtml+xml' => 'html',
+        'text/html' => NativePHPRenderer::class,
+        'application/xhtml' => NativePHPRenderer::class,
+        'application/xhtml+xml' => NativePHPRenderer::class,
         // json
         'application/json' => 'json',
         // xml
         'application/xml' => 'xml',
         // pdf
-        'application/pdf' => 'pdf'
+        'application/pdf' => WkhtmlToPdfRenderer::class
     ];
 
     protected $outputMimeType = 'text/html';

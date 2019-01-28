@@ -13,37 +13,46 @@ use RuntimeException;
  */
 class WkhtmlToPdfRenderer
 {
-	/**
-	 * Binary
-	 *
-	 * @var string
-	 */
-	protected $binary = '/usr/bin/wkhtmltopdf';
+    /**
+     * Binary
+     *
+     * @var string
+     */
+    protected $binary = '/usr/bin/wkhtmltopdf';
 
-	/**
-	 *
-	 */
-	protected $isWindowsEnvironment = false;
+    /**
+     * Is it running on windows
+     *
+     * @var bool
+     */
+    protected $isWindowsEnvironment = false;
 
-	/**
-	 * Cwd for phps proc_open
-	 */
-	protected $cwd = null;
+    /**
+     * Cwd for phps proc_open fourth argument
+     *
+     * @var string|null
+     */
+    protected $cwd = null;
 
-	public function setBinary(string $binary): self
-	{
-		if (!file_exists($binary)) {
-			throw new InvalidArgumentException('Binary %s does not exist');
-		}
+    /**
+     * Sets the path for the wkhtmltopdf binary
+     *
+     * @return $this
+     */
+    public function setBinary(string $binary): self
+    {
+        if (!file_exists($binary)) {
+            throw new InvalidArgumentException(sprintf('Binary %s does not exist', $binary));
+        }
 
-		if (!is_executable($binary)) {
-			throw new RuntimeException('%s not a binary or can not be executed');
-		}
+        if (!is_executable($binary)) {
+            throw new RuntimeException(sprintf('%s not a binary or can not be executed', $binary));
+        }
 
-		$this->binary = $binary;
+        $this->binary = $binary;
 
-		return $this;
-	}
+        return $this;
+    }
 
     /**
      * Constructor
@@ -62,11 +71,10 @@ class WkhtmlToPdfRenderer
     /**
      * Generates Pdf from html
      *
-     * @throws \Cake\Core\Exception\Exception
      * @return string Raw PDF data
      * @throws \Exception If no output is generated to stdout by wkhtmltopdf.
      */
-    public function render(PdfViewInterface $view)
+    public function render(PdfViewInterface $view): string
     {
         $command = $this->buildCommand($view);
         $content = $this->exec($command, $view->getHtml());
@@ -76,7 +84,7 @@ class WkhtmlToPdfRenderer
         }
 
         if (!empty($content['stderr'])) {
-            throw new Exception(sprintf(
+            throw new RuntimeException(sprintf(
                 'System error "%s" when executing command "%s". ' .
                 'Try using the binary provided on http://wkhtmltopdf.org/downloads.html',
                 $content['stderr'],
@@ -84,7 +92,7 @@ class WkhtmlToPdfRenderer
             ));
         }
 
-        throw new Exception("WKHTMLTOPDF didn't return any data");
+        throw new RuntimeException("WKHTMLTOPDF didn't return any data");
     }
 
     /**

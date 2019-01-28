@@ -9,27 +9,53 @@ namespace Phauthentic\Presentation\View;
  */
 interface PdfViewInterface extends ViewInterface
 {
-	/**
-	 * Get/Set Page size.
-	 *
-	 * @param null|string $pageSize Page size to set
-	 * @return $this
-	 */
-	public function setPageSize(?string $pageSize): PdfViewInterface;
+    const PAGE_SIZE_A4 = 'A4';
 
-	/**
-	 * Get/Set Orientation.
-	 *
-	 * @param null|string $orientation orientation to set
-	 * @return $this
-	 */
-	public function setOrientation(?string $orientation): PdfViewInterface;
+    const ORIENTATION_PORTRAIT = 'portrait';
+    const ORIENTATION_LANDSCAPE = 'landscape';
 
-	/**
-	 * Get/Set Encoding.
-	 *
-	 * @param null|string $encoding encoding to set
-	 * @return $this
-	 */
-	public function setEncoding(?string $encoding): PdfViewInterface;
+    /**
+     * Get/Set Page size.
+     *
+     * @param null|string $pageSize Page size to set
+     * @return $this
+     */
+    public function setPageSize(?string $pageSize): PdfViewInterface;
+
+    /**
+     * Gets the page size
+     *
+     * @return string|null
+     */
+    public function getPageSize(): ?string;
+
+    /**
+     * Get/Set Orientation.
+     *
+     * @param null|string $orientation orientation to set
+     * @return $this
+     */
+    public function setOrientation(?string $orientation): PdfViewInterface;
+
+    /**
+     * Gets the orientation
+     *
+     * @return string
+     */
+    public function getOrientation();
+
+    /**
+     * Get/Set Encoding.
+     *
+     * @param null|string $encoding encoding to set
+     * @return $this
+     */
+    public function setEncoding(?string $encoding): PdfViewInterface;
+
+    /**
+     * Gets the encoding
+     *
+     * @return string|null
+     */
+    public function getEncoding(): ?string;
 }

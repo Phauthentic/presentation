@@ -8,195 +8,117 @@ namespace Phauthentic\Presentation\View;
  */
 class PdfView extends View implements PdfViewInterface
 {
-
-    /**
-     * Layout for the View
-     *
-     * @var string
-     */
-    protected $_layout = 'default';
-
-    /**
-     * Path to the layout - defaults to 'pdf'
-     *
-     * @var string
-     */
-    protected $_layoutPath = 'pdf';
-
-    /**
-     * Template for the view
-     *
-     * @var string
-     */
-    protected $_template = null;
-
-    /**
-     * Path to the template - defaults to 'Pdf'
-     *
-     * @var string
-     */
-    protected $_templatePath = 'Pdf';
-
-    /**
-     * View for render
-     *
-     * @var string
-     */
-    protected $_viewRender = 'View';
-
-    /**
-     * Vars to sent to render
-     *
-     * @var array
-     */
-    protected $_viewVars = [];
-
-    /**
-     * Theme for the View
-     *
-     * @var string
-     */
-    protected $_theme = null;
-
-    /**
-     * Helpers to be used in the render
-     *
-     * @var array
-     */
-    protected $_helpers = ['Html'];
-
-    /**
-     * Instance of PdfEngine class
-     *
-     * @var \CakePdf\Pdf\Engine\AbstractPdfEngine
-     */
-    protected $_engineClass = null;
-
-    /**
-     * Instance of PdfCrypto class
-     *
-     * @var \CakePdf\Pdf\Crypto\AbstractPdfCrypto
-     */
-    protected $_cryptoClass = null;
-
     /**
      * Html to be rendered
      *
      * @var string
      */
-    protected $_html = '';
+    protected $html = '';
 
     /**
      * Page size of the pdf
      *
      * @var string
      */
-    protected $_pageSize = 'A4';
+    protected $pageSize = self::PAGE_SIZE_A4;
 
     /**
      * Orientation of the pdf
      *
      * @var string
      */
-    protected $_orientation = 'portrait';
+    protected $orientation = self::ORIENTATION_PORTRAIT;
 
     /**
      * Encoding
      *
      * @var string
      */
-    protected $_encoding = 'UTF-8';
+    protected $encoding = 'UTF-8';
 
     /**
      * Footer HTML
      *
      * @var array
      */
-    protected $_footer = ['left' => null, 'center' => null, 'right' => null];
+    protected $footer = ['left' => null, 'center' => null, 'right' => null];
 
     /**
      * Header HTML
      *
      * @var array
      */
-    protected $_header = ['left' => null, 'center' => null, 'right' => null];
+    protected $header = ['left' => null, 'center' => null, 'right' => null];
 
     /**
      * Bottom margin in mm
      *
      * @var number
      */
-    protected $_marginBottom = null;
+    protected $marginBottom = null;
 
     /**
      * Left margin in mm
      *
      * @var number
      */
-    protected $_marginLeft = null;
+    protected $marginLeft = null;
 
     /**
      * Right margin in mm
      *
      * @var number
      */
-    protected $_marginRight = null;
+    protected $marginRight = null;
 
     /**
      * Top margin in mm
      *
      * @var number
      */
-    protected $_marginTop = null;
+    protected $marginTop = null;
 
     /**
      * Title of the document
      *
      * @var string
      */
-    protected $_title = null;
+    protected $title = null;
 
     /**
      * Javascript delay before rendering document in milliseconds
      *
      * @var int
      */
-    protected $_delay = null;
+    protected $delay = null;
 
     /**
      * Window status required before rendering document
      *
      * @var string
      */
-    protected $_windowStatus = null;
+    protected $windowStatus = null;
 
     /**
      * Flag that tells if we need to pass it through crypto
      *
      * @var bool
      */
-    protected $_protect = false;
+    protected $protect = false;
 
     /**
      * User password, used with crypto
      *
      * @var string
      */
-    protected $_userPassword = null;
+    protected $userPassword = null;
 
     /**
      * Owner password, used with crypto
      *
      * @var string
      */
-    protected $_ownerPassword = null;
-
-    /**
-     * Cache config name, if set to false cache is disabled
-     *
-     * @var string|bool
-     */
-    protected $_cache = false;
+    protected $ownerPassword = null;
 
     /**
      * Permissions that are allowed, used with crypto
@@ -207,14 +129,14 @@ class PdfView extends View implements PdfViewInterface
      *
      * @var mixed
      */
-    protected $_allow = false;
+    protected $allow = false;
 
     /**
      * Available permissions
      *
      * @var array
      */
-    protected $_availablePermissions = [
+    protected $availablePermissions = [
         'print',
         'degraded_print',
         'modify',
@@ -232,13 +154,6 @@ class PdfView extends View implements PdfViewInterface
      */
     public function __construct($config = [])
     {
-        if (!empty($config['engine'])) {
-            $this->engine($config['engine']);
-        }
-        if (!empty($config['crypto'])) {
-            $this->crypto($config['crypto']);
-        }
-
         $options = [
             'pageSize',
             'orientation',
@@ -261,48 +176,6 @@ class PdfView extends View implements PdfViewInterface
     }
 
     /**
-     * Create pdf content from html. Can be used to write to file or with PdfView to display
-     *
-     * @param null|string $html Html content to render. If omitted, the template will be rendered with viewVars and layout that have been set.
-     * @throws \Cake\Core\Exception\Exception
-     * @return string
-     */
-    public function output($html = null)
-    {
-        $Engine = $this->engine();
-        if (!$Engine) {
-            throw new Exception(__d('cake_pdf', 'Engine is not loaded'));
-        }
-
-        if ($html === null) {
-            $html = $this->_render();
-        }
-        $this->html($html);
-
-        $cacheKey = null;
-        $cache = $this->cache();
-        if ($cache) {
-            $cacheKey = md5(serialize($this));
-            $cached = Cache::read($cacheKey, $cache);
-            if ($cached) {
-                return $cached;
-            }
-        }
-
-        $output = $Engine->output();
-
-        if ($this->protect()) {
-            $output = $this->crypto()->encrypt($output);
-        }
-
-        if ($cache) {
-            Cache::write($cacheKey, $output, $cache);
-        }
-
-        return $output;
-    }
-
-    /**
      * Get/Set Html.
      *
      * @param null|string $html Html to set
@@ -310,118 +183,53 @@ class PdfView extends View implements PdfViewInterface
      */
     public function getHtml(): string
     {
-        return $this->_html;
-    }
-
-	public function setHtml($html = null)
-	{
-		$this->_html = $html;
-
-		return $this;
-	}
-
-    /**
-     * Writes output to file
-     *
-     * @param string $destination Absolute file path to write to
-     * @param bool $create Create file if it does not exist (if true)
-     * @param string $html Html to write
-     * @return bool
-     */
-    public function write($destination, $create = true, $html = null)
-    {
-        $output = $this->output($html);
-        $File = new File($destination, $create);
-
-        return $File->write($output) && $File->close();
+        return $this->html;
     }
 
     /**
-     * Load PdfEngine
+     * Sets the HTML to render
      *
-     * @param string $name Classname of pdf engine without `Engine` suffix. For example `CakePdf.DomPdf`
-     * @throws \Cake\Core\Exception\Exception
-     * @return \CakePdf\Pdf\Engine\AbstractPdfEngine
+     * @param string $html HTML
+     * @return
      */
-    public function engine($name = null)
+    public function setHtml($html = null): PdfViewInterface
     {
-        if (!$name) {
-            return $this->_engineClass;
-        }
-        $config = [];
-        if (is_array($name)) {
-            $config = $name;
-            $name = $name['className'];
-        }
-
-        $engineClassName = App::className($name, 'Pdf/Engine', 'Engine');
-        if (!class_exists($engineClassName)) {
-            throw new Exception(__d('cake_pdf', sprintf('Pdf engine "%s" not found', $name)));
-        }
-        if (!is_subclass_of($engineClassName, 'CakePdf\Pdf\Engine\AbstractPdfEngine')) {
-            throw new Exception(__d('cake_pdf', 'Pdf engines must extend "AbstractPdfEngine"'));
-        }
-        $this->_engineClass = new $engineClassName($this);
-        $this->_engineClass->setConfig($config);
-
-        return $this->_engineClass;
-    }
-
-    /**
-     * Load PdfCrypto
-     *
-     * @param string $name Classname of crypto engine without `Crypto` suffix. For example `CakePdf.Pdftk`
-     * @throws \Cake\Core\Exception\Exception
-     * @return \CakePdf\Pdf\Crypto\AbstractPdfCrypto
-     */
-    public function crypto($name = null)
-    {
-        if ($name === null) {
-            if ($this->_cryptoClass) {
-                return $this->_cryptoClass;
-            }
-            throw new Exception(__d('cake_pdf', 'Crypto is not loaded'));
-        }
-        $config = [];
-        if (is_array($name)) {
-            $config = $name;
-            $name = $name['className'];
-        }
-
-        $engineClassName = App::className($name, 'Pdf/Crypto', 'Crypto');
-        if (!class_exists($engineClassName)) {
-            throw new Exception(__d('cake_pdf', 'Pdf crypto "%s" not found', $name));
-        }
-        if (!is_subclass_of($engineClassName, 'CakePdf\Pdf\Crypto\AbstractPdfCrypto')) {
-            throw new Exception(__d('cake_pdf', 'Crypto engine must extend "AbstractPdfCrypto"'));
-        }
-        $this->_cryptoClass = new $engineClassName($this);
-        $this->_cryptoClass->config($config);
-
-        return $this->_cryptoClass;
-    }
-
-    /**
-     * Get/Set Page size.
-     *
-     * @param null|string $pageSize Page size to set
-     * @return mixed
-     */
-    public function setPageSize(?string $pageSize ): PdfViewInterface
-    {
-        $this->_pageSize = $pageSize;
+        $this->html = $html;
 
         return $this;
     }
 
-    public function getPageSize(): ?string
+    /**
+     * Set Page size.
+     *
+     * @param null|string $pageSize Page size to set
+     * @return \Phauthentic\Presentation\View\PdfViewInterface
+     */
+    public function setPageSize(?string $pageSize ): PdfViewInterface
     {
-		return $this->_pageSize;
+        $this->pageSize = $pageSize;
+
+        return $this;
     }
 
-    public function getOrientation()
+    /**
+     * Gets the page size
+     *
+     * @return string|null
+     */
+    public function getPageSize(): ?string
     {
-        return $this->_orientation;
+        return $this->pageSize;
+    }
+
+    /**
+     * Gets the orientation
+     *
+     * @return string
+     */
+    public function getOrientation(): ?string
+    {
+        return $this->orientation;
     }
 
     /**
@@ -433,9 +241,9 @@ class PdfView extends View implements PdfViewInterface
     public function setOrientation(?string $orientation): PdfViewInterface
     {
         if ($orientation === null) {
-            return $this->_orientation;
+            return $this->orientation;
         }
-        $this->_orientation = $orientation;
+        $this->orientation = $orientation;
 
         return $this;
     }
@@ -448,14 +256,19 @@ class PdfView extends View implements PdfViewInterface
      */
     public function setEncoding(?string $encoding): PdfViewInterface
     {
-        $this->_encoding = $encoding;
+        $this->encoding = $encoding;
 
         return $this;
     }
 
+    /**
+     * Gets the encoding
+     *
+     * @return string|null
+     */
     public function getEncoding(): ?string
     {
-    	return $this->_encoding;
+        return $this->encoding;
     }
 
     /**
@@ -469,14 +282,14 @@ class PdfView extends View implements PdfViewInterface
     public function footer($left = null, $center = null, $right = null)
     {
         if ($left === null && $center === null && $right === null) {
-            return $this->_footer;
+            return $this->footer;
         }
 
         if (is_array($left)) {
             extract($left, EXTR_IF_EXISTS);
         }
 
-        $this->_footer = compact('left', 'center', 'right');
+        $this->footer = compact('left', 'center', 'right');
 
         return $this;
     }
@@ -492,27 +305,32 @@ class PdfView extends View implements PdfViewInterface
     public function header($left = null, $center = null, $right = null)
     {
         if ($left === null && $center === null && $right === null) {
-            return $this->_header;
+            return $this->header;
         }
 
         if (is_array($left)) {
             extract($left, EXTR_IF_EXISTS);
         }
 
-        $this->_header = compact('left', 'center', 'right');
+        $this->header = compact('left', 'center', 'right');
 
         return $this;
     }
 
-	public function getMargin(): array
-	{
-		return [
-			'bottom' => $this->_marginBottom,
-			'left' => $this->_marginLeft,
-			'right' => $this->_marginRight,
-			'top' => $this->_marginTop,
-		];
-	}
+    /**
+     * Gets the margins
+     *
+     * @return array
+     */
+    public function getMargin(): array
+    {
+        return [
+            'bottom' => $this->marginBottom,
+            'left' => $this->marginLeft,
+            'right' => $this->marginRight,
+            'top' => $this->marginTop,
+        ];
+    }
 
     /**
      * Get/Set page margins.
@@ -578,9 +396,9 @@ class PdfView extends View implements PdfViewInterface
     public function marginBottom($margin = null)
     {
         if ($margin === null) {
-            return $this->_marginBottom;
+            return $this->marginBottom;
         }
-        $this->_marginBottom = $margin;
+        $this->marginBottom = $margin;
 
         return $this;
     }
@@ -594,9 +412,9 @@ class PdfView extends View implements PdfViewInterface
     public function marginLeft($margin = null)
     {
         if ($margin === null) {
-            return $this->_marginLeft;
+            return $this->marginLeft;
         }
-        $this->_marginLeft = $margin;
+        $this->marginLeft = $margin;
 
         return $this;
     }
@@ -610,9 +428,9 @@ class PdfView extends View implements PdfViewInterface
     public function marginRight($margin = null)
     {
         if ($margin === null) {
-            return $this->_marginRight;
+            return $this->marginRight;
         }
-        $this->_marginRight = $margin;
+        $this->marginRight = $margin;
 
         return $this;
     }
@@ -626,33 +444,43 @@ class PdfView extends View implements PdfViewInterface
     public function marginTop($margin = null)
     {
         if ($margin === null) {
-            return $this->_marginTop;
+            return $this->marginTop;
         }
-        $this->_marginTop = $margin;
+        $this->marginTop = $margin;
 
         return $this;
     }
 
     /**
-     * Get/Set document title.
+     * Set document title
      *
      * @param null|string $title title to set
      * @return mixed
      */
-    public function title(?string $title)
+    public function setTitle(?string $title)
     {
-        $this->_title = $title;
+        $this->title = $title;
 
         return $this;
     }
 
-	public function getTitle(): ?string {
-		return $this->_title;
-	}
+    /**
+     * Gets the title
+     *
+     * @return string|null
+     */
+    public function getTitle(): ?string
+    {
+        return $this->title;
+    }
 
-	public function getJsDelay() {
-    	return $this->delay();
-	}
+    /**
+     *
+     */
+    public function getJsDelay()
+    {
+        return $this->delay();
+    }
 
     /**
      * Get/Set javascript delay.
@@ -663,31 +491,37 @@ class PdfView extends View implements PdfViewInterface
     public function delay($delay = null)
     {
         if ($delay === null) {
-            return $this->_delay;
+            return $this->delay;
         }
-        $this->_delay = $delay;
+        $this->delay = $delay;
 
         return $this;
     }
 
     /**
-     * Get/Set the required window status for rendering
+     * Set the required window status for rendering
+     *
      * Waits until the status is equal to the string before rendering the pdf
      *
      * @param null|string $status status to set as string
-     * @return mixed
+     * @return \Phauthentic\Presentation\View\PdfViewInterface
      */
     public function setWindowStatus(?string $status): PdfViewInterface
     {
-        $this->_windowStatus = $status;
+        $this->windowStatus = $status;
 
         return $this;
     }
 
-	public function getWindowStatus()
-	{
-		return $this->_windowStatus;
-	}
+    /**
+     * Gets the window status
+     *
+     * @return null|string
+     */
+    public function getWindowStatus(): ?string
+    {
+        return $this->windowStatus;
+    }
 
     /**
      * Get/Set protection.
@@ -698,9 +532,9 @@ class PdfView extends View implements PdfViewInterface
     public function protect($protect = null)
     {
         if ($protect === null) {
-            return $this->_protect;
+            return $this->protect;
         }
-        $this->_protect = $protect;
+        $this->protect = $protect;
 
         return $this;
     }
@@ -716,9 +550,9 @@ class PdfView extends View implements PdfViewInterface
     public function userPassword($password = null)
     {
         if ($password === null) {
-            return $this->_userPassword;
+            return $this->userPassword;
         }
-        $this->_userPassword = $password;
+        $this->userPassword = $password;
 
         return $this;
     }
@@ -734,9 +568,9 @@ class PdfView extends View implements PdfViewInterface
     public function ownerPassword($password = null)
     {
         if ($password === null) {
-            return $this->_ownerPassword;
+            return $this->ownerPassword;
         }
-        $this->_ownerPassword = $password;
+        $this->ownerPassword = $password;
 
         return $this;
     }
@@ -759,7 +593,7 @@ class PdfView extends View implements PdfViewInterface
         }
 
         if ($permissions === null) {
-            return $this->_allow;
+            return $this->allow;
         }
 
         if (is_string($permissions) && $permissions == 'all') {
@@ -772,7 +606,7 @@ class PdfView extends View implements PdfViewInterface
 
         if (is_array($permissions)) {
             foreach ($permissions as $permission) {
-                if (!in_array($permission, $this->_availablePermissions)) {
+                if (!in_array($permission, $this->availablePermissions)) {
                     throw new Exception(sprintf('Invalid permission: %s', $permission));
                 }
 
@@ -782,180 +616,8 @@ class PdfView extends View implements PdfViewInterface
             }
         }
 
-        $this->_allow = $permissions;
+        $this->allow = $permissions;
 
         return $this;
-    }
-
-    /**
-     * Get/Set caching.
-     *
-     * @param null|bool|string $cache Cache config name to use, If true is passed, 'cake_pdf' will be used.
-     * @throws \Cake\Core\Exception\Exception
-     * @return mixed
-     */
-    public function cache($cache = null)
-    {
-        if ($cache === null) {
-            return $this->_cache;
-        }
-
-        if ($cache === false) {
-            $this->_cache = false;
-
-            return $this;
-        }
-
-        if ($cache === true) {
-            $cache = 'cake_pdf';
-        }
-
-        if (!in_array($cache, Cache::configured())) {
-            throw new Exception(sprintf('CakePdf cache is not configured: %s', $cache));
-        }
-
-        $this->_cache = $cache;
-
-        return $this;
-    }
-
-    /**
-     * Template and layout
-     *
-     * @param mixed $template Template name or null to not use
-     * @param mixed $layout Layout name or null to not use
-     * @return mixed
-     */
-    public function template($template = false, $layout = null)
-    {
-        if ($template === false) {
-            return [
-                'template' => $this->_template,
-                'layout' => $this->_layout,
-            ];
-        }
-        $this->_template = $template;
-        if ($layout !== null) {
-            $this->_layout = $layout;
-        }
-
-        return $this;
-    }
-
-    /**
-     * Template path
-     *
-     * @param mixed $templatePath The path of the template to use
-     * @return mixed
-     */
-    public function templatePath($templatePath = false)
-    {
-        if ($templatePath === false) {
-            return $this->_templatePath;
-        }
-
-        $this->_templatePath = $templatePath;
-
-        return $this;
-    }
-
-    /**
-     * Layout path
-     *
-     * @param mixed $layoutPath The path of the layout file to use
-     * @return mixed
-     */
-    public function layoutPath($layoutPath = false)
-    {
-        if ($layoutPath === false) {
-            return $this->_layoutPath;
-        }
-
-        $this->_layoutPath = $layoutPath;
-
-        return $this;
-    }
-
-    /**
-     * View class for render
-     *
-     * @param string $viewClass name of the view class to use
-     * @return mixed
-     */
-    public function viewRender($viewClass = null)
-    {
-        if ($viewClass === null) {
-            return $this->_viewRender;
-        }
-        $this->_viewRender = $viewClass;
-
-        return $this;
-    }
-
-    /**
-     * Variables to be set on render
-     *
-     * @param array $viewVars view variables to set
-     * @return mixed
-     */
-    public function viewVars($viewVars = null)
-    {
-        if ($viewVars === null) {
-            return $this->_viewVars;
-        }
-        $this->_viewVars = array_merge($this->_viewVars, (array)$viewVars);
-
-        return $this;
-    }
-
-    /**
-     * Theme to use when rendering
-     *
-     * @param string $theme theme to use
-     * @return mixed
-     */
-    public function theme($theme = null)
-    {
-        if ($theme === null) {
-            return $this->_theme;
-        }
-        $this->_theme = $theme;
-
-        return $this;
-    }
-
-    /**
-     * Build and set all the view properties needed to render the layout and template.
-     *
-     * @return array The rendered template wrapped in layout.
-     */
-    protected function _render()
-    {
-        $viewClass = $this->viewRender();
-        $viewClass = App::className($viewClass, 'View', $viewClass == 'View' ? '' : 'View');
-
-        $viewVars = [
-            'theme',
-            'layoutPath',
-            'templatePath',
-            'template',
-            'layout',
-            'helpers',
-            'viewVars',
-        ];
-        $viewOptions = [];
-        foreach ($viewVars as $var) {
-            $prop = '_' . $var;
-            $viewOptions[$var] = $this->{$prop};
-        }
-
-        $View = new $viewClass(
-            ServerRequestFactory::fromGlobals(),
-            null,
-            null,
-            $viewOptions
-        );
-
-        return $View->render();
     }
 }

@@ -1,22 +1,30 @@
 <?php
+declare(strict_types = 1);
+
 namespace Phauthentic\Test\TestCase\View;
 
+use Phauthentic\Presentation\Renderer\WkhtmlToPdfRenderer;
 use Phauthentic\Presentation\View\PdfView;
 use PHPUnit\Framework\TestCase;
 
 /**
- * WkhtmlToPdfRenderer
+ * WkhtmlToPdfRendererTest
  */
 class WkhtmlToPdfRendererTest extends TestCase
 {
-	public function testPdfGeneration()
-	{
-		$pdfView = new PdfView();
-		$pdfRenderer = new \Phauthentic\Presentation\Renderer\WkhtmlToPdfRenderer();
+    /**
+     * testPdfGeneration
+     *
+     * @return void
+     */
+    public function testPdfGeneration(): void
+    {
+        $pdfView = new PdfView();
+        $pdfRenderer = new WkhtmlToPdfRenderer();
 
-		$result = $pdfRenderer->render($pdfView);
+        $result = $pdfRenderer->render($pdfView);
 
-		var_dump($result);
-		die();
-	}
+        var_dump($result);
+        die();
+    }
 }

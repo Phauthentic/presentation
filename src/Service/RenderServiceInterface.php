@@ -1,7 +1,7 @@
 <?php
 declare(strict_types = 1);
 
-namespace Phauthentic\Presentation\Service\Service;
+namespace Phauthentic\Presentation\Service;
 
 use Phauthentic\Presentation\Renderer\RendererInterface;
 use Phauthentic\Presentation\View\ViewInterface;

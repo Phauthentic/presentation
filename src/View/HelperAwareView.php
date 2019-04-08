@@ -4,6 +4,7 @@ declare(strict_types = 1);
 namespace Phauthentic\Presentation\View;
 
 use Psr\Container\ContainerInterface;
+use RuntimeException;
 
 /**
  * Helper Aware View
@@ -26,13 +27,23 @@ class HelperAwareView extends View implements HelperAwareViewInterface
     protected $helpers;
 
     /**
+     * Container namespace prefix
+     *
+     * @var string
+     */
+    protected $containerNamespacePrefix = '';
+
+    /**
      * Constructor
      *
      * @param \Psr\Container\ContainerInterface $services
      */
-    public function __construct(ContainerInterface $services)
-    {
+    public function __construct(
+        ContainerInterface $services,
+        string $containerNamespacePrefix = ''
+    ) {
         $this->helpers = $services;
+        $this->containerNamespacePrefix = $containerNamespacePrefix;
     }
 
     /**
@@ -57,12 +68,15 @@ class HelperAwareView extends View implements HelperAwareViewInterface
             return;
         }
 
-        $helper = $this->helpers()->get($name);
+        $helper = $this->helpers()->get($this->containerNamespacePrefix . $name);
 
         if ($helper instanceof ViewAwareInterface) {
             $helper->setView($this);
         }
 
+        if (!is_object($helper)) {
+        	throw new RuntimeException(sprintf('%s is not an object, %s given', $name, gettype($helper)));
+        }
         return $helper;
     }
 }

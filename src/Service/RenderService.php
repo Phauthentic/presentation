@@ -1,10 +1,13 @@
 <?php
 declare(strict_types = 1);
 
-namespace Phauthentic\Presentation\Service\Service;
+namespace Phauthentic\Presentation\Service;
 
+use Phauthentic\Presentation\Renderer\NativePHPRenderer;
 use Phauthentic\Presentation\Renderer\RendererInterface;
+use Phauthentic\Presentation\Renderer\WkhtmlToPdfRenderer;
 use Phauthentic\Presentation\View\ViewInterface;
+use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use RuntimeException;
@@ -22,26 +25,42 @@ class RenderService implements RenderServiceInterface, ResponseRenderServiceInte
     protected $rendererMap = [];
 
     /**
+     * Response Factory
+     *
+     * @var \Psr\Http\Message\ResponseFactoryInterface
+     */
+    protected $responseFactory;
+
+    /**
      * Map of mime types to output types
      *
      * @var array
      */
     protected $mimeTypeMap = [
         // html
-        'text/html' => 'html',
-        'application/xhtml' => 'html',
-        'application/xhtml+xml' => 'html',
+        'text/html' => NativePHPRenderer::class,
+        'application/xhtml' => NativePHPRenderer::class,
+        'application/xhtml+xml' => NativePHPRenderer::class,
         // json
         'application/json' => 'json',
         // xml
         'application/xml' => 'xml',
         // pdf
-        'application/pdf' => 'pdf'
+        'application/pdf' => WkhtmlToPdfRenderer::class
     ];
 
     protected $outputMimeType = 'text/html';
 
     /**
+     *
+     */
+    public function __construct(
+        ResponseFactoryInterface $responseFactory
+    ) {
+        $this->responseFactory = $responseFactory;
+    }
+
+	/**
      * Adds a renderer and maps it to an output type
      *
      * @return $this
@@ -169,8 +188,11 @@ class RenderService implements RenderServiceInterface, ResponseRenderServiceInte
      * @param string $outputMimeType Output format
      * @return \Psr\Http\Message\ResponseInterface
      */
-    public function renderToResponse(ResponseInterface $response, ViewInterface $view, ?string $outputMimeType = null): ResponseInterface
-    {
+    public function renderToResponse(
+        ResponseInterface $response,
+        ViewInterface $view,
+        ?string $outputMimeType = null
+    ): ResponseInterface {
         $outputMimeType = $outputMimeType === null ? $this->outputMimeType : $outputMimeType;
 
         $stream = $response->getBody();
@@ -179,6 +201,20 @@ class RenderService implements RenderServiceInterface, ResponseRenderServiceInte
         return $response
             ->withBody($stream)
             ->withHeader('content-type', $outputMimeType);
+    }
+
+    /**
+     * @param \Phauthentic\Presentation\Renderer\ViewInterface $view View DTO
+     * @param string $outputMimeType Output format
+     * @return \Psr\Http\Message\ResponseInterface
+     */
+    public function renderResponse(
+        ViewInterface $view,
+        ?string $outputMimeType = null
+    ): ResponseInterface {
+        $response = $this->responseFactory->createResponse();
+
+        return $this->renderToResponse($view, $outputMimeType);
     }
 }
 

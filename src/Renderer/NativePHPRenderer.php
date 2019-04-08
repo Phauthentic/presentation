@@ -32,27 +32,6 @@ class NativePHPRenderer implements RendererInterface
     }
 
     /**
-     * Sanitizes the template path
-     *
-     * @param string $path
-     * @return string
-     */
-    public function sanitizePath(string $path): string
-    {
-        if (DIRECTORY_SEPARATOR === '\\') {
-            $path = str_replace('/', '\\', $path);
-        } else {
-            $path = str_replace('\\', '/', $path);
-        }
-
-        if (substr($path, 0, -1) !== '\\') {
-            $path .= '\\';
-        }
-
-        return $path;
-    }
-
-    /**
      * Gets the template file from the view DTO object
      *
      * @param \Phauthentic\Presentation\Renderer\ViewInterface
@@ -61,7 +40,7 @@ class NativePHPRenderer implements RendererInterface
     public function getTemplateFile(ViewInterface $view): string
     {
         $path = $view->getTemplatePath();
-        $path = $this->sanitizePath($path);
+        $path = Utility::sanitizePath($path);
 
         $template = $this->templateRoot . DIRECTORY_SEPARATOR . $path .  $view->getTemplate() . '.php';
 

@@ -28,9 +28,18 @@ class LightnCandyRenderer implements RendererInterface
     protected $cache;
 
     /**
+     * Flags
+     *
      * @var array
      */
     protected $flags = [];
+
+    /**
+     * Helpers
+     *
+     * @var array
+     */
+    protected $helpers = [];
 
     /**
      * Constructor
@@ -55,6 +64,31 @@ class LightnCandyRenderer implements RendererInterface
     public function setFlags(array $flags): self
     {
         $this->flags = $flags;
+    }
+
+    /**
+     * Sets the helpers
+     *
+     * @param array $helpers Helpers
+     * @return $this
+     */
+    public function setHelpers(array $helpers)
+    {
+        $this->helpers = $helpers;
+
+        return $this;
+    }
+
+    /**
+     * @param string $name Name
+     * @param mixed $helper
+     * @return $this;
+     */
+    public function addHelper(string $name, $helper)
+    {
+        $this->helpers[$name] = $helper;
+
+        return $this;
     }
 
     /**
@@ -84,13 +118,13 @@ class LightnCandyRenderer implements RendererInterface
     {
         $tmpDir = sys_get_temp_dir();
         $templateHash = hash_file('sha1', $template);
-        $cachedTemplateFile = $tmpDir . DIRECTORY_SEPARATOR . $templateHash;
+        $cachedTemplateFile = $tmpDir . DIRECTORY_SEPARATOR . sha1($template) . '-' . $templateHash;
 
         if (!file_exists($cachedTemplateFile)) {
             $templateString = file_get_contents($template);
             $phpTemplateString = LightnCandy::compile($templateString, [
                 'flags' => $this->flags,
-                'helpers' => []
+                'helpers' => $this->helpers
             ]);
             file_put_contents($cachedTemplateFile, '<?php ' . $phpTemplateString . '?>');
         }

@@ -24,5 +24,6 @@ class WkhtmlToPdfRendererTest extends TestCase
         $pdfRenderer = new WkhtmlToPdfRenderer();
 
         $result = $pdfRenderer->render($pdfView);
+        $this->assertNotEmpty($result);
     }
 }

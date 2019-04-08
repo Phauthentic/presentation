@@ -6,6 +6,8 @@ namespace Phauthentic\Test\TestCase\View;
 use Phauthentic\Presentation\Renderer\TwigRenderer;
 use Phauthentic\Presentation\View\View;
 use PHPUnit\Framework\TestCase;
+use Twig\Environment;
+use Twig\Loader\FilesystemLoader;
 
 /**
  * TwigRendererTest
@@ -26,7 +28,7 @@ class TwigRendererTest extends TestCase
     {
         parent::setUp();
 
-        $this->fixtureRoot = FIXTURE_ROOT . DIRECTORY_SEPARATOR . 'twig';
+        $this->fixtureRoot = FIXTURE_ROOT . DIRECTORY_SEPARATOR . 'mustache';
     }
 
     /**
@@ -36,9 +38,12 @@ class TwigRendererTest extends TestCase
      */
     public function testRender(): void
     {
-        return;
-        /*
-        $renderer = new TwigRenderer();
+        $loader = new FilesystemLoader($this->fixtureRoot);
+        $twig = new Environment($loader, [
+            'cache' => sys_get_temp_dir(),
+        ]);
+
+        $renderer = new TwigRenderer($twig);
 
         $view = new View();
         $view->setTemplate('hello');
@@ -46,6 +51,5 @@ class TwigRendererTest extends TestCase
 
         $result = $renderer->render($view);
         $this->assertEquals("<h1>Hello Florian</h1>\n", $result);
-        */
     }
 }

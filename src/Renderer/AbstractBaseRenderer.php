@@ -33,16 +33,6 @@ abstract class AbstractBaseRenderer implements RendererInterface
     protected $extension = 'php';
 
     /**
-     * Constructor
-     *
-     * @var string $templateRoot
-     */
-    public function __construct(string $templateRoot)
-    {
-        $this->templateRoot = $templateRoot;
-    }
-
-    /**
      * @inheritDoc
      */
     public function setTemplateRoot(string $root): self

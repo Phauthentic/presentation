@@ -52,7 +52,7 @@ class RenderService implements RenderServiceInterface, ResponseRenderServiceInte
     protected $outputMimeType = 'text/html';
 
     /**
-     *
+     * Constructor
      */
     public function __construct(
         ResponseFactoryInterface $responseFactory

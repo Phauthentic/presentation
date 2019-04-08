@@ -29,7 +29,7 @@ class TemplateFolderCollection implements IteratorAggregate
      */
     public function __construct(array $folders)
     {
-        foreach($folders as $folder) {
+        foreach ($folders as $folder) {
             $this->add($folder);
         }
     }
@@ -46,8 +46,8 @@ class TemplateFolderCollection implements IteratorAggregate
 
         if (!is_dir($folder)) {
             throw new MissingTemplateFolderException(sprintf(
-               'The folder %s does not exist or is not a folder',
-               $folder
+                'The folder %s does not exist or is not a folder',
+                $folder
             ));
         }
 

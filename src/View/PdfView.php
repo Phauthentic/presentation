@@ -205,7 +205,7 @@ class PdfView extends View implements PdfViewInterface
      * @param null|string $pageSize Page size to set
      * @return \Phauthentic\Presentation\View\PdfViewInterface
      */
-    public function setPageSize(?string $pageSize ): PdfViewInterface
+    public function setPageSize(?string $pageSize): PdfViewInterface
     {
         $this->pageSize = $pageSize;
 

@@ -11,10 +11,11 @@ use Psr\Http\Message\ResponseFactoryInterface;
 class RenderServiceTest extends TestCase
 {
 
-	public function testService() {
-		$factoryMock = $this->getMockBuilder(ResponseFactoryInterface::class)
-			->getMock();
+    public function testService()
+    {
+        $factoryMock = $this->getMockBuilder(ResponseFactoryInterface::class)
+            ->getMock();
 
-		$service = new RenderService($factoryMock);
-	}
+        $service = new RenderService($factoryMock);
+    }
 }

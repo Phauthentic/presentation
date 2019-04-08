@@ -37,7 +37,8 @@ abstract class AbstractBaseRenderer implements RendererInterface
      *
      * @var string $templateRoot
      */
-    public function __construct(string $templateRoot) {
+    public function __construct(string $templateRoot)
+    {
         $this->templateRoot = $templateRoot;
     }
 

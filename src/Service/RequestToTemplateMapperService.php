@@ -36,7 +36,8 @@ use Psr\Http\Message\ServerRequestInterface;
  *  - {basePath}/{module}/{component}/{action}
  *  - /var/www/my-app/resources/templates/my/module/example/view.tpl
  */
-class RequestToTemplateMapperService implements RequestToTemplateMapperServiceInterface {
+class RequestToTemplateMapperService implements RequestToTemplateMapperServiceInterface
+{
 
     /**
      * Default view class

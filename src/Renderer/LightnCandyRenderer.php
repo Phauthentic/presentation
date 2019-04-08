@@ -86,18 +86,17 @@ class LightnCandyRenderer implements RendererInterface
         $templateHash = hash_file('sha1', $template);
         $cachedTemplateFile = $tmpDir . DIRECTORY_SEPARATOR . $templateHash;
 
-        //if (!file_exists($cachedTemplateFile)) {
+        if (!file_exists($cachedTemplateFile)) {
             $templateString = file_get_contents($template);
             $phpTemplateString = LightnCandy::compile($templateString, [
-                'flags' => $this->flags
+                'flags' => $this->flags,
+                'helpers' => []
             ]);
             file_put_contents($cachedTemplateFile, '<?php ' . $phpTemplateString . '?>');
-        //}
+        }
 
         ob_start();
         $renderer = require $cachedTemplateFile;
-        //var_dump($renderer);
-        //die();
         $content = $renderer($viewVars);
         ob_end_clean();
 

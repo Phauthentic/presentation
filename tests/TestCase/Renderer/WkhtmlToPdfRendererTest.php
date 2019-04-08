@@ -13,18 +13,16 @@ use PHPUnit\Framework\TestCase;
 class WkhtmlToPdfRendererTest extends TestCase
 {
     /**
-     * testPdfGeneration
+     * testRender
      *
+     * @todo finish me
      * @return void
      */
-    public function testPdfGeneration(): void
+    public function testRender(): void
     {
         $pdfView = new PdfView();
         $pdfRenderer = new WkhtmlToPdfRenderer();
 
         $result = $pdfRenderer->render($pdfView);
-
-        var_dump($result);
-        die();
     }
 }

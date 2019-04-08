@@ -22,7 +22,8 @@ class LightnCandyRendererTest extends TestCase
     /**
      * @inheritDoc
      */
-    public function setUp() {
+    public function setUp()
+    {
         parent::setUp();
 
         $this->fixtureRoot = FIXTURE_ROOT . DIRECTORY_SEPARATOR . 'mustache';
@@ -33,7 +34,8 @@ class LightnCandyRendererTest extends TestCase
      *
      * @return void
      */
-    public function testRender(): void {
+    public function testRender(): void
+    {
         $renderer = new LightnCandyRenderer($this->fixtureRoot, null);
 
         $view = new View();

@@ -60,7 +60,7 @@ class RenderService implements RenderServiceInterface, ResponseRenderServiceInte
         $this->responseFactory = $responseFactory;
     }
 
-	/**
+    /**
      * Adds a renderer and maps it to an output type
      *
      * @return $this
@@ -147,7 +147,8 @@ class RenderService implements RenderServiceInterface, ResponseRenderServiceInte
      * @param \Psr\Http\Message\ServerRequestInterface $request Server Request Object
      * @return A list of mime types the client accepts
      */
-    public function getMimeTypesFromRequest(ServerRequestInterface $request): array {
+    public function getMimeTypesFromRequest(ServerRequestInterface $request): array
+    {
         $mimeTypes = $request->getHeader('Accept');
 
         if (empty($mimeTypes)) {

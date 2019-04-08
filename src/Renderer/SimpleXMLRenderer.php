@@ -75,18 +75,16 @@ class SimpleXMLRenderer implements RendererInterface
      */
     protected function arrayToXml(array $data, SimpleXMLElement &$xmlData): void
     {
-        foreach($data as $key => $value) {
-            if(is_array($value)) {
-                if(!is_numeric($key)){
+        foreach ($data as $key => $value) {
+            if (is_array($value)) {
+                if (!is_numeric($key)) {
                     $subnode = $xmlData->addChild("$key");
                     $this->arrayToXml($value, $subnode);
-                }
-                else{
+                } else {
                     $this->arrayToXml($value, $xmlData);
                 }
-            }
-            else {
-                $xmlData->addChild("$key","$value");
+            } else {
+                $xmlData->addChild("$key", "$value");
             }
         }
     }

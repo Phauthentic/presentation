@@ -24,6 +24,7 @@ This is a very basic example to illustrate the separation of concerns and passin
 
 ```php
 use Phauthentic/Presentation/Renderer/SimplePHPRender;
+use Phauthentic/Presentation/Renderer/TwigRenderer;
 use Phauthentic/Presentation/View/View;
 
 $view = (new View())
@@ -38,12 +39,27 @@ $view = (new View())
     ->setTemplatePath('Articles')
     ->setTemplate('view'); 
 
+// Plain php renderer
 $renderer = new SimplePHPRender();
 $output = $renderer->renderView($view);
+
+// Twig
+$loader = new \Twig\Loader\FilesystemLoader('/your/template-root/folder');
+$twig = new \Twig\Environment($loader, [
+    'cache' => sys_get_temp_dir(),
+]);
+        
+$renderer = new TwigRenderer($twig);
+$output = $renderer->renderView($view);
+
+// ...any other renderer you want
 ```
+
+## View Factory
 
 Because the template and template path is very different determined by different frameworks and libraries it is recommended to implement your own factory to map your requests route parameters to your template path and template file if you don't want to manually take care of this.
 
+Be aware that this is just a made up example, that assumes you have a `controller` and `action` query param in your server request!
 ```php
 use Phauthentic/Presentation/View/View;
 use Phauthentic/Presentation/View/ViewInterface;
@@ -63,7 +79,14 @@ class MyViewFactory implements ViewFactoryInterface
         $view = new View();
 
         // Do whatever you need here to determine your template path and template file
-        // $this->request...
+        // For example:
+        $queryParams = $this->request->getQueryParams();
+        if (isset($queryParams['controller']) {
+            $view->setTemplateFolder((string)$queryParams['controller']);
+        }
+        if (isset($queryParams['action']) {
+            $view->setTemplate((string)$queryParams['action']);
+        }
 
         return $view;
     }

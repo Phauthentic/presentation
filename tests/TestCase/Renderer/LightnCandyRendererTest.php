@@ -43,6 +43,6 @@ class LightnCandyRendererTest extends TestCase
         $view->setVar('username', 'Florian');
 
         $result = $renderer->render($view);
-        $this->assertEquals("<h1>Hello Florian</h1>\r\n", $result);
+        $this->assertEquals("<h1>Hello Florian</h1>\n", $result);
     }
 }

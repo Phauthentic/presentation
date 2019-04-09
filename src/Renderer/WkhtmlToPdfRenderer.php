@@ -56,6 +56,8 @@ class WkhtmlToPdfRenderer
 
     /**
      * Constructor
+     *
+     * @param array $options Options
      */
     public function __construct(array $options = [])
     {

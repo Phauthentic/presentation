@@ -17,15 +17,9 @@ class Utility
     public static function sanitizePath(string $path): string
     {
         if (DIRECTORY_SEPARATOR === '\\') {
-            $path = str_replace('/', '\\', $path);
-        } else {
-            $path = str_replace('\\', '/', $path);
+            return str_replace('/', '\\', $path);
         }
 
-        if (substr($path, 0, -1) !== '\\') {
-            $path .= '\\';
-        }
-
-        return $path;
+        return str_replace('\\', '/', $path);
     }
 }

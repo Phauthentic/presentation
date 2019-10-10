@@ -30,6 +30,6 @@ class ViewTest extends TestCase
             'one' => 'onevar',
             'two' => 'twovar'
         ];
-        $this->assertEquals($expected, $view->getViewVars());
+        $this->assertEquals($expected, $view->viewVars());
     }
 }

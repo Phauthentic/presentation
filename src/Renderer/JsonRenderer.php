@@ -13,10 +13,10 @@ class JsonRenderer implements RendererInterface
     /**
      * @inheritDoc
      */
-    public function render(ViewInterface $render): string
+    public function render(ViewInterface $view): string
     {
         return json_encode([
-            $render->getViewVars()
+            $view->viewVars()
         ]);
     }
 }

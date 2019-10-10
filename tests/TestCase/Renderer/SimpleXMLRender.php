@@ -12,7 +12,12 @@ use PHPUnit\Framework\TestCase;
  */
 class SimpleXMLRender extends TestCase
 {
-    public function testXMlRendering()
+    /**
+     * testXMlRendering
+     *
+     * @return void
+     */
+    public function testXMlRendering(): void
     {
         $view = new View();
         $view->setVar('foo', 'bar');

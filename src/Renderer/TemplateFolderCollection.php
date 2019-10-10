@@ -35,6 +35,22 @@ class TemplateFolderCollection implements IteratorAggregate
     }
 
     /**
+     * Checks that the folder really exists
+     *
+     * @param string $folder Folder
+     * @return void
+     */
+    protected function checkFolder(string $folder): void
+    {
+        if (!is_dir($folder)) {
+            throw new MissingTemplateFolderException(sprintf(
+                'The folder %s does not exist or is not a folder',
+                $folder
+            ));
+        }
+    }
+
+    /**
      * Adds a folder
      *
      * @param string $folder Folder
@@ -43,15 +59,11 @@ class TemplateFolderCollection implements IteratorAggregate
     public function add(string $folder)
     {
         $folder = $this->sanitizePath($folder);
+        $this->checkFolder($folder);
 
-        if (!is_dir($folder)) {
-            throw new MissingTemplateFolderException(sprintf(
-                'The folder %s does not exist or is not a folder',
-                $folder
-            ));
+        if (!in_array($folder, $this->folders)) {
+            $this->folders[] = $folder;
         }
-
-        $this->folders[] = $folder;
     }
 
     /**
@@ -62,17 +74,7 @@ class TemplateFolderCollection implements IteratorAggregate
      */
     public function sanitizePath(string $path): string
     {
-        if (DIRECTORY_SEPARATOR === '\\') {
-            $path = str_replace('/', '\\', $path);
-        } else {
-            $path = str_replace('\\', '/', $path);
-        }
-
-        if (substr($path, 0, -1) !== '\\') {
-            $path .= '\\';
-        }
-
-        return $path;
+        return Utility::sanitizePath($path);
     }
 
     /**

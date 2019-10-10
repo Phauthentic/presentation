@@ -99,10 +99,10 @@ class LightnCandyRenderer implements RendererInterface
      */
     public function getTemplateFile(ViewInterface $view): string
     {
-        $path = $view->getTemplatePath();
+        $path = $view->templatePath();
         $path = Utility::sanitizePath($path);
 
-        $template = $this->templateRoot . DIRECTORY_SEPARATOR . $path .  $view->getTemplate() . '.html';
+        $template = $this->templateRoot . DIRECTORY_SEPARATOR . $path .  $view->template() . '.html';
 
         if (!is_file($template)) {
             throw new MissingTemplateException('Template file missing: ' . $template);
@@ -144,6 +144,6 @@ class LightnCandyRenderer implements RendererInterface
     {
         $template = $this->getTemplateFile($view);
 
-        return $this->renderTemplate($template, $view->getViewVars());
+        return $this->renderTemplate($template, $view->viewVars());
     }
 }

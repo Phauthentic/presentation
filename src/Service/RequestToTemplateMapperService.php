@@ -121,7 +121,6 @@ class RequestToTemplateMapperService implements RequestToTemplateMapperServiceIn
         $action = (string)$request->getAttribute('action');
 
         if (empty($action)) {
-            return 'default';
             trigger_error(
                 sprintf('Could not get the template name from the request data. The request attribute `%s` was not found.', $this->config['action']),
                 E_USER_WARNING

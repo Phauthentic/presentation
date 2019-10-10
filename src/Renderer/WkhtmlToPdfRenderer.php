@@ -9,7 +9,7 @@ use Phauthentic\Presentation\View\ViewInterface;
 use RuntimeException;
 
 /**
- * Twig Renderer
+ * WkhtmlToPdf Renderer
  */
 class WkhtmlToPdfRenderer
 {

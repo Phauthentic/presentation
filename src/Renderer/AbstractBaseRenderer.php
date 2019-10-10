@@ -91,13 +91,13 @@ abstract class AbstractBaseRenderer implements RendererInterface
      */
     public function getTemplateFile(ViewInterface $view): string
     {
-        $path = $view->getTemplatePath();
+        $path = $view->templatePath();
         $path = $this->sanitizePath($path);
 
-        $template = $this->templateRoot . DIRECTORY_SEPARATOR . $path . $view->getTemplate() . '.' . $this->extension;
+        $template = $this->templateRoot . DIRECTORY_SEPARATOR . $path . $view->template() . '.' . $this->extension;
 
         if (!is_file($template)) {
-            throw new MissingTemplateException('Template file missing: ' . $template);
+            throw MissingTemplateException::missingFile($template);
         }
 
         return $template;

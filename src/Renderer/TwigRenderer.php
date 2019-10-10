@@ -9,7 +9,7 @@ use Twig\Environment;
 /**
  * Twig Renderer
  */
-class TwigRenderer extends AbstractBaseRenderer implements RendererInterface
+class TwigRenderer extends AbstractBaseRenderer
 {
     /**
      * Twig
@@ -48,10 +48,10 @@ class TwigRenderer extends AbstractBaseRenderer implements RendererInterface
     /**
      * @inheritDoc
      */
-    public function render(ViewInterface $render): string
+    public function render(ViewInterface $view): string
     {
-        $template = $this->twig->load($render->getTemplate() . '.' . $this->getTemplateExtension());
+        $template = $this->twig->load($view->template() . '.' . $this->getTemplateExtension());
 
-        return $template->render($render->getViewVars());
+        return $template->render($view->viewVars());
     }
 }

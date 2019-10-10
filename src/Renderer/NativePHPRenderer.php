@@ -39,13 +39,13 @@ class NativePHPRenderer implements RendererInterface
      */
     public function getTemplateFile(ViewInterface $view): string
     {
-        $path = $view->getTemplatePath();
+        $path = $view->templatePath();
         $path = Utility::sanitizePath($path);
 
-        $template = $this->templateRoot . DIRECTORY_SEPARATOR . $path .  $view->getTemplate() . '.php';
+        $template = $this->templateRoot . DIRECTORY_SEPARATOR . $path .  $view->template() . '.php';
 
         if (!is_file($template)) {
-            throw new MissingTemplateException('Template file missing: ' . $template);
+            throw MissingTemplateException::missingFile($template);
         }
 
         return $template;
@@ -57,7 +57,7 @@ class NativePHPRenderer implements RendererInterface
     public function renderTemplate($template, $viewVars): string
     {
         ob_start();
-        extract($viewVars);
+        extract($viewVars, EXTR_OVERWRITE);
         require $template;
         $content = ob_get_contents();
         ob_end_clean();
@@ -72,6 +72,6 @@ class NativePHPRenderer implements RendererInterface
     {
         $template = $this->getTemplateFile($view);
 
-        return $this->renderTemplate($template, $view->getViewVars());
+        return $this->renderTemplate($template, $view->viewVars());
     }
 }

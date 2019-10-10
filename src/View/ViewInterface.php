@@ -64,33 +64,33 @@ interface ViewInterface
      *
      * @return string
      */
-    public function getTemplate(): string;
+    public function template(): string;
 
     /**
      * Gets the layout
      *
      * @return string
      */
-    public function getLayout(): string;
+    public function layout(): string;
 
     /**
      * Gets the layout path
      *
      * @return string
      */
-    public function getTemplatePath(): string;
+    public function templatePath(): string;
 
     /**
      * Gets the layout
      *
      * @return string
      */
-    public function getLayoutPath(): string;
+    public function layoutPath(): string;
 
     /**
      * Gets the view vars
      *
      * @return array
      */
-    public function getViewVars(): array;
+    public function viewVars(): array;
 }

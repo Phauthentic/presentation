@@ -60,10 +60,10 @@ class SimpleXMLRenderer implements RendererInterface
      */
     public function render(ViewInterface $view): string
     {
-        $view->getViewVars();
+        $view->viewVars();
         $xml = $this->getSimpleXmlElement();
 
-        $this->arrayToXml($view->getViewVars(), $xml);
+        $this->arrayToXml($view->viewVars(), $xml);
 
         return $xml->asXML();
     }

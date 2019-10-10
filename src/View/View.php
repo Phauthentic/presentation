@@ -3,6 +3,7 @@ declare(strict_types = 1);
 
 namespace Phauthentic\Presentation\View;
 
+use Phauthentic\Presentation\View\Exception\ViewException;
 use RuntimeException;
 
 /**
@@ -129,10 +130,10 @@ class View implements ViewInterface
     /**
      * @inheritDoc
      */
-    public function getTemplate(): string
+    public function template(): string
     {
         if (empty($this->template)) {
-            throw new RuntimeException('No template specified for view');
+            throw ViewException::noTemplateSet();
         }
 
         return $this->template;
@@ -141,10 +142,10 @@ class View implements ViewInterface
     /**
      * @inheritDoc
      */
-    public function getLayout(): string
+    public function layout(): string
     {
         if (empty($this->template)) {
-            throw new RuntimeException('No layout specified for view');
+            throw ViewException::noLayoutSet();
         }
 
         return $this->layout;
@@ -153,7 +154,7 @@ class View implements ViewInterface
     /**
      * @inheritDoc
      */
-    public function getTemplatePath(): string
+    public function templatePath(): string
     {
         return $this->templatePath;
     }
@@ -161,7 +162,7 @@ class View implements ViewInterface
     /**
      * @inheritDoc
      */
-    public function getLayoutPath(): string
+    public function layoutPath(): string
     {
         return $this->layoutPath;
     }
@@ -169,7 +170,7 @@ class View implements ViewInterface
     /**
      * @inheritDoc
      */
-    public function getViewVars(): array
+    public function viewVars(): array
     {
         return $this->viewVars;
     }

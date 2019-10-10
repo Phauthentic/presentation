@@ -36,7 +36,7 @@ class CakePHPRenderer implements RendererInterface
         return $this->cakeView
             ->setTemplatePath($view->getTemplatePath())
             ->setTemplate($view->getTemplate())
-            ->set($view->getViewVars())
+            ->set($view->viewVars())
             ->render();
     }
 }

@@ -77,6 +77,7 @@ class HelperAwareView extends View implements HelperAwareViewInterface
         if (!is_object($helper)) {
             throw new RuntimeException(sprintf('%s is not an object, %s given', $name, gettype($helper)));
         }
+
         return $helper;
     }
 }
